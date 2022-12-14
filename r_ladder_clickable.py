@@ -133,5 +133,5 @@ def display_sankey(levensduur,prijs,clicky):
         fig.update_layout(title_text="R-ladder Grondstoffen zonnepanelen ton/pj 2021", font_size=10)
     
     return fig
-
-app.run_server(debug=False)
+if __name__ == '__main__':
+    app.run_server(debug=False)
