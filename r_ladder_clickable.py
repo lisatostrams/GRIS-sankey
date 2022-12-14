@@ -89,7 +89,7 @@ def display_sankey(levensduur,prijs,clicky):
 
     for node in range(1,len(nodes)):
         values[node] = sum([l[2] for l in links if l[1]==node])
-    values[2] = 147009
+    values[2] = links[1][2]
     
     
     timeseries = [1.1,1.3,1,0.9,0.8,1.1,1.2,1]
@@ -195,7 +195,7 @@ def display_sankey(levensduur,prijs,clicky):
         
         fig.add_annotation(
         x=0.5,
-        y=0.4,
+        y=0.37,
         xref="x domain",
         yref="y domain",
         text="Levensduur -",
