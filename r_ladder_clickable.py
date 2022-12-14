@@ -13,6 +13,7 @@ import pandas as pd
 import plotly.express as px
 
 app = Dash(__name__)
+server = app.server
 
 nodes = [("Grondstof",'rgba(127, 127, 127, 0.4)'),
          ("Vooraad Markt",'rgba(188, 189, 34, 0.8)'), 
