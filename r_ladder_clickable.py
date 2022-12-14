@@ -11,6 +11,7 @@ import json, urllib
 from dash import callback_context
 import pandas as pd
 import plotly.express as px
+import numpy as np
 
 app = Dash(__name__)
 server = app.server
@@ -28,6 +29,7 @@ nodes = [("Grondstof",'rgba(127, 127, 127, 0.4)'),
          ("Export",'rgba(150, 150, 150, 0.4)')]
 
 sankey = True
+random_ts = 0.2*np.random.randn(len(nodes),8)
 
 def decrease_alpha(color):
     current_alpha = color.split(', ')[-1]
@@ -88,31 +90,36 @@ def display_sankey(levensduur,prijs,clicky):
     for node in range(1,len(nodes)):
         values[node] = sum([l[2] for l in links if l[1]==node])
     values[2] = 147009
+    
+    
+    timeseries = [1.1,1.3,1,0.9,0.8,1.1,1.2,1]
+
     ctx = callback_context
     trigger_id = ctx.triggered[0]["prop_id"].split(".")
     print(trigger_id)
+    
     if trigger_id[0] == 'graph':
         global sankey
         sankey= not sankey
-    print(sankey)
+    
     if not sankey and clicky is not None and 'points' in clicky.keys():
-        print('ok')
+        print(clicky['points'][0])
         node = clicky['points'][0]['index']
         current_value = values[node]
         
-        timeseries = [1.1,1.3,1,0.9,0.8,1.1,1.2,1]
-        timeseries = [t*current_value for t in timeseries]
+        ts = [(timeseries[i]+random_ts[node,i])*current_value for i in range(len(timeseries))]
+        
         years = [2014,2015,2016,2017,2018,2019,2020,2021]
         
         dff = pd.DataFrame()
-        dff['Ton/pj'] = timeseries
+        dff['Ton/pj'] = ts
         dff['Jaar']= years
         fig = px.scatter(dff, x='Jaar', y='Ton/pj')
-        fig.update_traces(mode='lines+markers')
+        fig.update_traces(mode='lines+markers',line_color=clicky['points'][0]['color'], marker_color=clicky['points'][0]['color'])
         fig = go.Figure(fig)
               
     else:
-        fig = go.Figure(go.Sankey(
+        sank = go.Sankey(
         valueformat = ".0f",
         valuesuffix = " ton",
         arrangement = "fixed",
@@ -130,7 +137,88 @@ def display_sankey(levensduur,prijs,clicky):
             'customdata':[l[2] for l in links],
             "color":  [l[3] for l in links],
             'hovertemplate':'Stroom van %{source.label}<br />'+
-            'naar %{target.label}<br />is %{customdata} ton<br /><extra></extra>'}))
+            'naar %{target.label}<br />is %{customdata} ton<br /><extra></extra>'})
+        
+        fig = go.Figure(sank)
+        
+        fig.add_annotation(
+        x=0.3,
+        y=0.55,
+        xref="x domain",
+        yref="y domain",
+        text="Prijs -",
+        showarrow=True,
+        font=dict(
+            family="Courier New, monospace",
+            size=16,
+            color="#ffffff"
+            ),
+        align="center",
+        arrowhead=2,
+        arrowsize=1,
+        arrowwidth=2,
+        arrowcolor="#636363",
+        ax=0,
+        ay=-50,
+        bordercolor="#c7c7c7",
+        borderwidth=2,
+        borderpad=4,
+        bgcolor="#ff7f0e",
+        opacity=0.8
+        )
+        
+        fig.add_annotation(
+        x=0.3,
+        y=0.25,
+        xref="x domain",
+        yref="y domain",
+        text="Opbrengst +",
+        showarrow=True,
+        font=dict(
+            family="Courier New, monospace",
+            size=16,
+            color="#ffffff"
+            ),
+        align="center",
+        arrowhead=2,
+        arrowsize=1,
+        arrowwidth=2,
+        arrowcolor="#636363",
+        ax=0,
+        ay=50,
+        bordercolor="#c7c7c7",
+        borderwidth=2,
+        borderpad=4,
+        bgcolor="#ff7f0e",
+        opacity=0.8
+        )
+        
+        fig.add_annotation(
+        x=0.5,
+        y=0.4,
+        xref="x domain",
+        yref="y domain",
+        text="Levensduur -",
+        showarrow=True,
+        font=dict(
+            family="Courier New, monospace",
+            size=16,
+            color="#ffffff"
+            ),
+        align="center",
+        arrowhead=2,
+        arrowsize=1,
+        arrowwidth=2,
+        arrowcolor="#636363",
+        ax=0,
+        ay=-50,
+        bordercolor="#c7c7c7",
+        borderwidth=2,
+        borderpad=4,
+        bgcolor="#ff7f0e",
+        opacity=0.8
+        )
+        
         fig.update_layout(title_text="R-ladder Grondstoffen zonnepanelen ton/pj 2021", font_size=10)
     
     return fig
