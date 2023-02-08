@@ -128,7 +128,7 @@ def display_sankey(levensduur,prijs,clicky):
             "label": [node[0] for node in nodes],
             "color": [node[1] for node in nodes],
             'pad':10,
-            'customdata':['.0f'.format(values[i]) for i in range(len(nodes))],
+            'customdata':['{:.0f}'.format(values[i]) for i in range(len(nodes))],
             'hovertemplate':'De vooraad van %{label} is %{customdata} ton/pj<br /><extra></extra>'},  # 10 Pixels
         link = {
             "source": [l[0] for l in links],
